@@ -5,10 +5,10 @@ import java.util.regex.Pattern;
 
 public class Main {
 
-    static double oneKB = Math.pow(2, 10);
-    static double oneMB = Math.pow(2, 20);
-    static double oneGB = Math.pow(2, 30);
-    static double oneTB = Math.pow(2, 40);
+    private static String[] variables = { "b", "Kb", "Mb", "Gb", "Tb"};
+    private static String[] ruVariables = { "байт", "Кбайт", "Мбайт", "Гбайт", "Тбайт"};
+
+    static double step = 1024;
 
     public static void main(String[] args) {
 
@@ -35,7 +35,6 @@ public class Main {
         if(folder.isFile()){
             return folder.length();
         }
-
         long sum = 0;
         File[] files = folder.listFiles();
         for(File file : files){
@@ -47,29 +46,20 @@ public class Main {
     public static String getHumanReadableSize(long size){
         double doubleSize = (double) size;
 
+        String str = null;
+        for (int i = 0; i < variables.length; i++){
 
-        if (doubleSize < oneKB) {
-            return doubleSize + " байт";
-        }
-        if (doubleSize < oneMB) {
-            String str = String.format("%.2f Кбайт", doubleSize / oneKB);
-            return str;
-        }
-        if (doubleSize < oneGB) {
-            String str = String.format("%.2f Мбайт", doubleSize / oneMB);
-            return str;
-        }
-        if (doubleSize < oneTB) {
-            String str = String.format("%.2f Гбайт", doubleSize / oneGB);
-            System.out.println(doubleSize / oneGB);
-            return str;
-        }
-        String str = String.format("%.2f Тбайт", doubleSize / oneTB);
+            if(size > Math.pow(step, i) && size < Math.pow(step, i+1) ){
+                str = String.format("%.2f" + variables[i], doubleSize / Math.pow(step, i));
+                System.out.println(size);
+                break;
+                }
+            }
         return str;
     }
 
     public static long getSizeFromHumanReadableSize(String size){
-
+        long byteSize = 0;
 
         String dimension = size.replaceAll("[^a-zA-Zа-яёА-ЯЁ]|\\s", "");
         System.out.println("size: " + size + "    dimension: " + dimension);
@@ -77,33 +67,12 @@ public class Main {
         number = number.replaceAll(",", ".");
         System.out.println("size: " + size + "    number: " + number);
 
-
-       //Pattern pat = Pattern.compile("[-]?[0-9]+(.[0-9]+)?");
-       //Matcher matcher = pat.matcher(size);
-
-       //while (matcher.find()){
-       //    number += matcher.group();
-       //}
-        if (dimension.equals("байт") || dimension.equals("b")){
-
-            return Long.valueOf(number).longValue();
+        for (int i = 0; i < variables.length; i++){
+            if(dimension.equals(variables[i]) || dimension.equals(ruVariables[i])){
+                byteSize = (long) (Double.parseDouble(number) * Math.pow(step, i));
+                break;
+            }
         }
-        if (dimension.equals("Кбайт") || dimension.equals("Kb")){
-            return  (long) (Double.parseDouble(number) * oneKB);
-        }
-        if (dimension.equals("Мбайт") || dimension.equals("Mb")){
-            return  (long) (Double.parseDouble(number) * oneMB);
-        }
-        if (dimension.equals("Гбайт") || dimension.equals("Gb")){
-            return  (long) (Double.parseDouble(number) * oneGB);
-        }
-        if (dimension.equals("Тбайт") || dimension.equals("Tb")){
-            return  (long) (Double.parseDouble(number) * oneTB);
-        }
-
-
-
-
-        return 0;
+        return byteSize;
     }
 }
